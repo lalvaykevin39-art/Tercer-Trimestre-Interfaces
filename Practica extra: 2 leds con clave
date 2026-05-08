@@ -1,0 +1,99 @@
+#include "BluetoothSerial.h"
+
+BluetoothSerial SerialBT;
+
+// Nombre Bluetooth
+String nombreDispositivo = "ESP32_Clave_Kevin_Lalvay";
+
+// Pines LEDs
+const int LED_VERDE = 18;
+const int LED_ROJO = 19;
+
+// Variables
+String clave = "";
+
+// Estado del parpadeo rojo
+bool parpadeoRojo = false;
+
+// Tiempo para parpadeo
+unsigned long tiempoAnterior = 0;
+const int intervalo = 500;
+
+void setup() {
+
+  Serial.begin(115200);
+
+  // Bluetooth
+  SerialBT.begin(nombreDispositivo);
+
+  // LEDs
+  pinMode(LED_VERDE, OUTPUT);
+  pinMode(LED_ROJO, OUTPUT);
+
+  // Inician apagados
+  digitalWrite(LED_VERDE, LOW);
+  digitalWrite(LED_ROJO, LOW);
+
+  Serial.println("Bluetooth listo");
+}
+
+void loop() {
+
+  // 🔴 Parpadeo LED rojo
+  if (parpadeoRojo) {
+
+    unsigned long tiempoActual = millis();
+
+    if (tiempoActual - tiempoAnterior >= intervalo) {
+
+      tiempoAnterior = tiempoActual;
+
+      // Cambia estado del LED rojo
+      digitalWrite(LED_ROJO, !digitalRead(LED_ROJO));
+    }
+  }
+
+  // 📶 Revisar Bluetooth
+  if (SerialBT.available()) {
+
+    clave = SerialBT.readString();
+    clave.trim();
+
+    Serial.print("Dato recibido: ");
+    Serial.println(clave);
+
+    // ✅ CLAVE CORRECTA
+    if (clave == "13579") {
+
+      parpadeoRojo = false;
+
+      digitalWrite(LED_ROJO, LOW);
+      digitalWrite(LED_VERDE, HIGH);
+
+      Serial.println("Clave correcta");
+    }
+
+    // 🔴 APAGAR TODO
+    else if (clave == "APAGAR") {
+
+      parpadeoRojo = false;
+
+      digitalWrite(LED_VERDE, LOW);
+      digitalWrite(LED_ROJO, LOW);
+
+      Serial.println("Todo apagado");
+    }
+
+    // ❌ CLAVE INCORRECTA_ de kevin lalvay
+    else {
+
+      digitalWrite(LED_VERDE, LOW);
+
+      parpadeoRojo = true;
+
+      Serial.println("Clave incorrecta");
+    }
+
+    clave = "";
+  }
+}
