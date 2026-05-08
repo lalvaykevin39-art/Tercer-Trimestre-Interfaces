@@ -1,0 +1,49 @@
+#include "BluetoothSerial.h"
+
+// Configuración Bluetooth
+BluetoothSerial SerialBT;
+String nombreDispositivo = "ESP32_RELE";
+
+// Pin del relé
+const int RELE = 18;
+
+void setup() {
+  Serial.begin(115200);
+
+  // Iniciar Bluetooth
+  if (!SerialBT.begin(nombreDispositivo)) {
+    Serial.println("Error al iniciar Bluetooth");
+  } else {
+    Serial.println("Bluetooth listo");
+  }
+
+  // Configurar relé
+  pinMode(RELE, OUTPUT);
+
+  // Relé apagado al inicio
+  digitalWrite(RELE, LOW);
+}
+
+void loop() {
+
+  // Verificar datos Bluetooth
+  if (SerialBT.available()) {
+
+    char letraRecibida = SerialBT.read();
+
+    Serial.print("Comando: ");
+    Serial.println(letraRecibida);
+
+    // Encender relé
+    if (letraRecibida == 'A') {
+      digitalWrite(RELE, HIGH);
+    }
+
+    // Apagar relé
+    if (letraRecibida == 'a') {
+      digitalWrite(RELE, LOW);
+    }
+  }
+
+  delay(10);
+}
