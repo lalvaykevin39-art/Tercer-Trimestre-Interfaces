@@ -1,0 +1,87 @@
+#include "BluetoothSerial.h"
+
+// Configuración de Bluetooth
+BluetoothSerial SerialBT;
+String nombreDispositivo = "ESP32_4LEDS";
+
+// Definición de Pines
+const int LED1 = 2;
+const int LED2 = 4;
+const int LED3 = 5;
+const int LED4 = 18;
+
+void setup() {
+  Serial.begin(115200);
+
+  // Iniciar Bluetooth
+  if (!SerialBT.begin(nombreDispositivo)) {
+    Serial.println("Error al iniciar Bluetooth");
+  } else {
+    Serial.println("Bluetooth listo");
+  }
+
+  // Configurar LEDs
+  pinMode(LED1, OUTPUT);
+  pinMode(LED2, OUTPUT);
+  pinMode(LED3, OUTPUT);
+  pinMode(LED4, OUTPUT);
+
+  // Todos apagados al inicio
+  digitalWrite(LED1, LOW);
+  digitalWrite(LED2, LOW);
+  digitalWrite(LED3, LOW);
+  digitalWrite(LED4, LOW);
+}
+
+void loop() {
+
+  // Verificar datos Bluetooth
+  if (SerialBT.available()) {
+
+    char letraRecibida = SerialBT.read();
+
+    Serial.print("Comando: ");
+    Serial.println(letraRecibida);
+
+    switch (letraRecibida) {
+
+      // LED 1
+      case 'A':
+        digitalWrite(LED1, HIGH);
+        break;
+
+      case 'a':
+        digitalWrite(LED1, LOW);
+        break;
+
+      // LED 2
+      case 'B':
+        digitalWrite(LED2, HIGH);
+        break;
+
+      case 'b':
+        digitalWrite(LED2, LOW);
+        break;
+
+      // LED 3
+      case 'C':
+        digitalWrite(LED3, HIGH);
+        break;
+
+      case 'c':
+        digitalWrite(LED3, LOW);
+        break;
+
+      // LED 4
+      case 'D':
+        digitalWrite(LED4, HIGH);
+        break;
+
+      case 'd':
+        digitalWrite(LED4, LOW);
+        break;
+    }
+  }
+
+  delay(10);
+}
